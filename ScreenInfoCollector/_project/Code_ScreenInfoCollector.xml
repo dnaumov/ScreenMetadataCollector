@@ -1,0 +1,89 @@
+﻿<Graph ClassName="ScreenInfoCollector" Source="#CDATA" IsNew="True" FileType="NewFile">
+    <CDATA name="Source"><![CDATA[using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+using PX.Data;
+using PX.Metadata;
+using PX.SM;
+
+namespace PX.Objects
+{
+    public class ScreenInfoCollector : PXGraph<ScreenInfoCollector>
+    {
+        [InjectDependency]
+        private IScreenInfoProvider ScreenInfoProvider { get; set; }
+        [InjectDependency]
+        private IGraphProvider GraphProvider { get; set; }
+
+        public PXFilter<ScreenFilter> Filter;
+        public PXSelect<ScreenInfo> ScreenInfo;
+
+        public ScreenInfoCollector()
+        {
+            ScreenInfo.View.AllowDelete = false;
+            ScreenInfo.View.AllowInsert = false;
+            ScreenInfo.View.AllowUpdate = false;
+        }
+
+        public virtual IEnumerable screenInfo()
+        {
+            var screenID = Filter.Current.ScreenID;
+            if (String.IsNullOrEmpty(screenID))
+                yield break;
+            if (ScreenInfoProvider == null)
+                yield break;
+            if (GraphProvider == null)
+                yield break;
+            var info = ScreenInfoProvider.GetScreenInfo(screenID, false, false);
+            var graph = GraphProvider.GetGraph(screenID);
+            foreach (var container in info.Containers)
+            {
+                foreach (var field in container.Fields)
+                {
+                    var viewName = container.CleanViewName();
+                    yield return new ScreenInfo
+                    {
+                        ViewName = viewName,
+                        DacName = graph.Views.FirstOrDefault(view => view.Key == viewName).Value?.CacheType().FullName,
+                        FieldName = field.FieldName
+                    };
+                }
+            }
+        }
+    }
+
+    public class ScreenInfo : PXBqlTable, IBqlTable
+    {
+        public abstract class viewName : PX.Data.BQL.BqlString.Field<viewName> { }
+        [PXString]
+        [PXUIField(DisplayName = "View")]
+        public virtual string ViewName { get; set; }
+
+
+        public abstract class dacName : PX.Data.BQL.BqlString.Field<dacName> { }
+        [PXString]
+        [PXUIField(DisplayName = "DAC")]
+        public virtual string DacName { get; set; }
+
+
+        public abstract class fieldName : PX.Data.BQL.BqlString.Field<fieldName> { }
+        [PXString]
+        [PXUIField(DisplayName = "Field ID")]
+        public virtual string FieldName { get; set; }
+    }
+
+    public class ScreenFilter : PXBqlTable, IBqlTable
+    {
+        public abstract class screenID : PX.Data.BQL.BqlString.Field<screenID> { }
+
+        [PXDefault("SO301000")]
+        [PXString]
+        [PXUIField(DisplayName = "Screen ID", Required = true)]
+        public virtual string ScreenID { get; set; }
+    }
+}]]></CDATA>
+</Graph>

@@ -1,0 +1,33 @@
+﻿<EntityEndpoint>
+    <Endpoint xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ScreenInfo" version="1" systemContractVersion="4" xmlns="http://www.acumatica.com/entity/maintenance/5.31">
+        <TopLevelEntity name="ScreenInfo" screen="SC999999">
+            <Fields>
+                <Field name="Fields" type="Field[]" />
+                <Field name="ScreenID" type="StringValue" />
+            </Fields>
+            <Mappings>
+                <Mapping field="ScreenID">
+                    <To object="Filter" field="ScreenID" />
+                </Mapping>
+                <Mapping field="Fields">
+                    <Mapping field="DAC">
+                        <To object="ScreenInfo" field="DacName" />
+                    </Mapping>
+                    <Mapping field="FieldID">
+                        <To object="ScreenInfo" field="FieldName" />
+                    </Mapping>
+                    <Mapping field="View">
+                        <To object="ScreenInfo" field="ViewName" />
+                    </Mapping>
+                </Mapping>
+            </Mappings>
+        </TopLevelEntity>
+        <Detail name="Field">
+            <Fields>
+                <Field name="DAC" type="StringValue" />
+                <Field name="FieldID" type="StringValue" />
+                <Field name="View" type="StringValue" />
+            </Fields>
+        </Detail>
+    </Endpoint>
+</EntityEndpoint>
